@@ -14,24 +14,28 @@ def objects_init():
     global player_2
     global ball
 
-    global objects_list
-
     player_1 = game.Player()
     player_2 = game.Player()
     ball = game.Dinamic()
-
-    objects_list = [player_1, player_2, ball]
 
     player_1.body.set_values(PLAYERS_SIZE, PLAYER_1_COLOR)
     player_2.body.set_values(PLAYERS_SIZE, PLAYER_2_COLOR)
     ball.body.set_values(BALL_SIZE, BALL_COLOR)
 
-    ball.body.set_position(BALL_POSITION[0], BALL_POSITION[1])
-    player_1.body.set_position(PLAYER_1_X, PLAYER_1_Y)
-    player_2.body.set_position(PLAYER_2_X, PLAYER_2_Y)
+    ball.x = BALL_POSITION[0]
+    ball.y = BALL_POSITION[1]
+    player_1.x = PLAYER_1_X
+    player_1.y = PLAYER_1_Y
+    player_2.x = PLAYER_2_X
+    player_2.y = PLAYER_2_Y
 
-    ball.vetor.x = 1
-    ball.vetor.y = 1
+
+def objects():
+    global objects_list
+    objects_list = [player_1, player_2, ball]
+
+    update_objects()
+    draw_objects()
 
 
 def update_objects():
@@ -53,8 +57,7 @@ def game_init():
 
 def game_update():
     bg_update()
-    update_objects()
-    draw_objects()
+    objects()
     pygame.display.flip()
 
 
@@ -66,8 +69,20 @@ def bg_update():
 screen = game_init()
 
 while True:
+    pygame.time.delay(6)
     for event in pygame.event.get():
         if event.type == QUIT:
             quit(0)
+        if event.type == KEYDOWN:
+            if event.key == K_KP_ENTER or event.key == KSCAN_KP_ENTER:
+                ball.vetor.x = ball.vetor.y = BALL_SPEED
+            if event.key == K_RIGHT:
+                player_2.keys.add('RIGHT')
+            if event.key == K_LEFT:
+                player_2.keys.add('LEFT')
+            if event.key == K_d:
+                player_1.keys.add('RIGHT')
+            if event.key == K_a:
+                player_1.keys.add('LEFT')
 
     game_update()

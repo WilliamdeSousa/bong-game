@@ -2,6 +2,17 @@ import pygame, sys
 from pygame.locals import *
 
 
+class Key:
+    def __init__(self):
+        self.keys_pressed = list()
+
+    def add(self, key):
+        self.keys_pressed.append(key)
+
+    def remove(self, key):
+        self.keys_pressed.remove(key)
+
+
 class Objeto:
     def __init__(self):
         self.x = 0
@@ -46,9 +57,11 @@ class Dinamic(Objeto):
     def update(self):
         self.x += self.vetor.x
         self.y += self.vetor.y
+        self.body.set_position(self.x, self.y)
         self.body.set_rect()
 
 
 class Player(Dinamic):
     def __init__(self):
         super().__init__()
+        self.keys = Key()
