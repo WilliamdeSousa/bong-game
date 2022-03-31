@@ -3,12 +3,13 @@ import game
 from time import sleep
 from pygame.locals import *
 from constants import *
-from random import randint
+from random import choice
 
 global player_1
 global player_2
 global ball
 global objects_list
+global game_stoped
 
 score = [0, 0]
 
@@ -70,6 +71,10 @@ def draw_objects():
 
 
 def game_init():
+    global game_stoped
+
+    game_stoped = True
+
     pygame.init()
     objects_init()
     window = pygame.display.set_mode(SIZE)
@@ -119,9 +124,10 @@ while True:
             quit(0)
 
         if event.type == KEYDOWN:
-            if event.key == K_SPACE:
-                ball.vetor.x = ball.vetor.speed_x if randint(1, 2) == 1 else -ball.vetor.speed_x
-                ball.vetor.y = ball.vetor.speed_y if randint(1, 2) == 1 else -ball.vetor.speed_y
+            if event.key == K_SPACE and game_stoped:
+                game_stoped = False
+                ball.vetor.x = choice([ball.vetor.speed_x, -ball.vetor.speed_x])
+                ball.vetor.y = choice([ball.vetor.speed_y, -ball.vetor.speed_y])
 
             if event.key == K_RIGHT:
                 player_2.keys.add('RIGHT')
