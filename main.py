@@ -8,6 +8,7 @@ from random import choice
 global player_1
 global player_2
 global ball
+global score_text
 global objects_list
 global game_stoped
 
@@ -76,6 +77,7 @@ def game_init():
     game_stoped = True
 
     pygame.init()
+    pygame.font.init()
     objects_init()
     window = pygame.display.set_mode(SIZE)
     return window
@@ -148,4 +150,5 @@ while True:
             if event.key == K_a:
                 player_1.keys.remove('LEFT')
 
+    pygame.font.Font.render()
     game_update()
