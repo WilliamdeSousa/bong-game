@@ -11,9 +11,44 @@ global player_2
 global ball
 global objects_list
 global game_stoped
+global colision_sound
+global point_sound
+global win_game_sound
+global music
 
 score = [0, 0]
 speed = BALL_SPEED
+
+
+def win_game(player):
+    win_game_mensagem(player)
+    win_game_sound.play()
+
+
+def win_game_mensagem(player):
+    pygame.font.init()
+    txt = f'JOGADOR {player} GANHOU!'
+    fonte = font.get_default_font()
+    fontesys = font.SysFont(fonte, 80)
+    win_game_text = fontesys.render(txt, 1, (255, 255, 255))
+    screen.blit(win_game_text, (CENTER_X - 310, CENTER_Y - 25))
+
+
+def sounds_init():
+    global colision_sound
+    global point_sound
+    global win_game_sound
+    global music
+
+    pygame.mixer.init()
+    colision_sound = pygame.mixer.Sound(r'colision sound.wav')
+    colision_sound.set_volume(0.1)
+    point_sound = pygame.mixer.Sound(r'point sound.wav')
+    point_sound.set_volume(0.1)
+    win_game_sound = pygame.mixer.Sound(r'win-game-sound.wav')
+    pygame.mixer.music.load('music.mp3')
+    pygame.mixer.music.set_volume(0.1)
+    pygame.mixer.music.play()
 
 
 def hub():
@@ -33,6 +68,7 @@ def draw_text(txt, pos, color=(255, 255, 255)):
 
 def stop_game():
     sleep(STOP_TIME)
+
     game_init()
 
 
@@ -57,7 +93,7 @@ def objects_init():
     player_2.y = PLAYER_2_Y
 
     player_1.vetor.speed_x = player_2.vetor.speed_x = PLAYER_SPEED
-    ball.vetor.speed_x = ball.vetor.speed_y = speed
+    ball.vetor.speed_x = ball.vetor.speed_y = BALL_SPEED
 
     ball.circle.radius = BALL_RADIUS
     ball.circle.center = [ball.x + BALL_RADIUS, ball.y + BALL_RADIUS]
@@ -92,12 +128,15 @@ def game_init():
 
     game_stoped = True
 
-    pygame.init()
-    pygame.mixer.init()
-    pygame.font.init()
+    pygame_inits()
     objects_init()
     window = pygame.display.set_mode(SIZE)
     return window
+
+
+def pygame_inits():
+    pygame.init()
+    pygame.font.init()
 
 
 def game_update():
@@ -106,6 +145,12 @@ def game_update():
     colisions()
     hub()
     screen_update()
+    check_music()
+
+
+def check_music():
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.play()
 
 
 def screen_update():
@@ -119,10 +164,10 @@ def bg_update():
 def colisions():
     global score
     # with players
-    if ball.colision_with(player_2):
-        ball.vetor.y = -ball.vetor.speed_y
-    elif ball.colision_with(player_1):
-        ball.vetor.y = ball.vetor.speed_y
+    if ball.colision_with(player_2) and ball.vetor.y != -ball.vetor.speed_y:
+        colision_with_player(2)
+    elif ball.colision_with(player_1) and ball.vetor.y != ball.vetor.speed_y:
+        colision_with_player(1)
 
     # with borders
     if ball.border_right >= screen.get_size()[0]:
@@ -130,19 +175,35 @@ def colisions():
     elif ball.border_left <= 0:
         ball.vetor.x = ball.vetor.speed_x
     if ball.border_up <= 0:
-        score[1] += 1
-        hub()
-        screen_update()
-        stop_game()
+        point(2)
     elif ball.border_down >= screen.get_size()[1]:
-        score[0] += 1
-        hub()
-        screen_update()
-        stop_game()
+        point(1)
+
+
+def colision_with_player(player):
+    ball.vetor.speed_y += 0.1
+    ball.vetor.speed_x += 0.1
+    if player == 1:
+        ball.vetor.y = ball.vetor.speed_y
+    elif player == 2:
+        ball.vetor.y = -ball.vetor.speed_y
+    colision_sound.play()
+
+
+def point(player):
+    score[player-1] += 1
+    if score[player-1] == 5:
+        win_game_mensagem(player)
+    else:
+        point_sound.play()
+    hub()
+    screen_update()
+    stop_game()
 
 
 # GAME
 screen = game_init()
+sounds_init()
 
 while True:
     pygame.time.delay(6)
