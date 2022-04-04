@@ -1,5 +1,4 @@
-import pygame, sys
-from pygame.locals import *
+from constants import *
 
 
 class Key:
@@ -77,12 +76,21 @@ class Dinamic(Objeto):
         super().__init__()
         self.colision = Body()
         self.vetor = Vetor()
+        self.border_left = self.x
+        self.border_right = self.x + self.colision.width
+        self.border_up = self.y
+        self.border_down = self.y + self.colision.height
+
 
     def update(self):
         self.x += self.vetor.x
         self.y += self.vetor.y
         self.colision.set_position(self.x, self.y)
         self.colision.set_rect()
+        self.border_left = self.x
+        self.border_right = self.x + self.colision.width
+        self.border_up = self.y
+        self.border_down = self.y + self.colision.height
 
 
 class Ball(Dinamic):
@@ -90,18 +98,10 @@ class Ball(Dinamic):
         super().__init__()
         self.colision.visible = False
         self.circle = Circle()
-        self.border_left = self.x
-        self.border_right = self.x + self.colision.width
-        self.border_up = self.y
-        self.border_down = self.y + self.colision.height
 
     def update(self):
         super().update()
         self.circle.update(self.x, self.y)
-        self.border_left = self.x
-        self.border_right = self.x + self.colision.width
-        self.border_up = self.y
-        self.border_down = self.y + self.colision.height
 
     def colision_with(self, obj):
         if self.check_colision_up(obj) and self.check_colision_down(obj) and self.check_colision_right(obj) and self.check_colision_left(obj):
@@ -147,9 +147,9 @@ class Player(Dinamic):
         self.check_move()
 
     def check_move(self):
-        if self.keys.check_move() == 'RIGHT':
+        if self.keys.check_move() == 'RIGHT' and self.border_right < WIDTH:
             self.vetor.x = self.vetor.speed_x
-        elif self.keys.check_move() == 'LEFT':
+        elif self.keys.check_move() == 'LEFT' and self.border_left > 0:
             self.vetor.x = -self.vetor.speed_x
-        elif self.keys.check_move() == 'STOP':
+        else:
             self.vetor.x = 0

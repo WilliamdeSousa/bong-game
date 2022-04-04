@@ -1,4 +1,5 @@
 import pygame
+from pygame import font
 import game
 from time import sleep
 from pygame.locals import *
@@ -8,11 +9,26 @@ from random import choice
 global player_1
 global player_2
 global ball
-global score_text
 global objects_list
 global game_stoped
 
 score = [0, 0]
+speed = BALL_SPEED
+
+
+def hub():
+    player_1_score_text = f'P1 = {score[0]}'
+    player_2_score_text = f'P2 = {score[1]}'
+    draw_text(player_1_score_text, (50, 50))
+    draw_text(player_2_score_text, (50, HEIGHT - 80))
+
+
+def draw_text(txt, pos, color=(255, 255, 255)):
+    pygame.font.init()
+    fonte = font.get_default_font()
+    fontesys = font.SysFont(fonte, 40)
+    scoretxt = fontesys.render(txt, 1, color)
+    screen.blit(scoretxt, pos)
 
 
 def stop_game():
@@ -41,7 +57,7 @@ def objects_init():
     player_2.y = PLAYER_2_Y
 
     player_1.vetor.speed_x = player_2.vetor.speed_x = PLAYER_SPEED
-    ball.vetor.speed_x = ball.vetor.speed_y = BALL_SPEED
+    ball.vetor.speed_x = ball.vetor.speed_y = speed
 
     ball.circle.radius = BALL_RADIUS
     ball.circle.center = [ball.x + BALL_RADIUS, ball.y + BALL_RADIUS]
@@ -67,7 +83,7 @@ def draw_objects():
             pygame.draw.rect(screen, obj.colision.color, obj.colision.rect)
         try:
             pygame.draw.circle(screen, obj.circle.color, obj.circle.center, obj.circle.radius)
-        except:
+        except AttributeError:
             pass
 
 
@@ -77,6 +93,7 @@ def game_init():
     game_stoped = True
 
     pygame.init()
+    pygame.mixer.init()
     pygame.font.init()
     objects_init()
     window = pygame.display.set_mode(SIZE)
@@ -87,6 +104,11 @@ def game_update():
     bg_update()
     objects()
     colisions()
+    hub()
+    screen_update()
+
+
+def screen_update():
     pygame.display.flip()
 
 
@@ -108,10 +130,14 @@ def colisions():
     elif ball.border_left <= 0:
         ball.vetor.x = ball.vetor.speed_x
     if ball.border_up <= 0:
-        score[0] += 1
+        score[1] += 1
+        hub()
+        screen_update()
         stop_game()
     elif ball.border_down >= screen.get_size()[1]:
-        score[1] += 1
+        score[0] += 1
+        hub()
+        screen_update()
         stop_game()
 
 
@@ -150,5 +176,4 @@ while True:
             if event.key == K_a:
                 player_1.keys.remove('LEFT')
 
-    pygame.font.Font.render()
     game_update()
